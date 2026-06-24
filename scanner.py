@@ -4,6 +4,7 @@
 
 import socket
 import datetime
+import nmap
 
 def resolve_target(target):
     try:
@@ -19,6 +20,23 @@ def get_service(port):
         return service
     except:
         return "Unknown Service"
+
+def nmap_scan(target, port):
+    try:
+        nm = nmap.PortScanner()
+        nm.scan(target, str(port), arguments='-sV')
+        state = nm[target]['tcp'][port]['state']
+        service = nm[target]['tcp'][port]['name']
+        version = nm[target]['tcp'][port]['version']
+        product = nm[target]['tcp'][port]['product']
+        return {
+            'state': state,
+            'service': service,
+            'product': product,
+            'version': version
+        }
+    except:
+        return None
 
 def scan_port(target, port):
     try:
@@ -49,13 +67,19 @@ def run_scanner(target, start_port, end_port):
         print(f"  Scanning port {port}...", end="\r")
         if scan_port(ip, port):
             service = get_service(port)
-            print(f"  [OPEN] Port {port:5} --> {service:20}")
+            nmap_info = nmap_scan(ip, port)
+            if nmap_info:
+                product = nmap_info['product']
+                version = nmap_info['version']
+                print(f"  [OPEN] Port {port:5} --> {service:15} | {product} {version}")
+            else:
+                print(f"  [OPEN] Port {port:5} --> {service:20}")
             open_ports.append((port, service))
 
-    print("-" * 50)
-    print(f"  Scan complete. {len(open_ports)} open port(s) found.")
-    print("-" * 50)
-    return open_ports
+                print("-" * 50)
+                print(f"  Scan complete. {len(open_ports)} open port(s) found.")
+                print("-" * 50)
+                return open_ports
 
 target = input("Enter target IP or hostname: ")
 start_port = int(input("Enter start port: "))

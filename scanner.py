@@ -76,10 +76,10 @@ def run_scanner(target, start_port, end_port):
                 print(f"  [OPEN] Port {port:5} --> {service:20}")
             open_ports.append((port, service))
 
-                print("-" * 50)
-                print(f"  Scan complete. {len(open_ports)} open port(s) found.")
-                print("-" * 50)
-                return open_ports
+    print("-" * 50)
+    print(f"  Scan complete. {len(open_ports)} open port(s) found.")
+    print("-" * 50)
+    return open_ports
 
 target = input("Enter target IP or hostname: ")
 start_port = int(input("Enter start port: "))

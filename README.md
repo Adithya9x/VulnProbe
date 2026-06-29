@@ -3,7 +3,7 @@ A Python-based network vulnerability scanner built for cybersecurity learning an
 
 ## Features
 - ✅ Stage 1: Port scanning with service detection
-- 🔄 Stage 2: Nmap integration (coming soon)
+- ✅ Stage 2: Nmap integration 
 - 🔄 Stage 3: CVE lookup (coming soon)
 - 🔄 Stage 4: Report generation (coming soon)
 

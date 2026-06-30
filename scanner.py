@@ -7,6 +7,7 @@ import datetime
 import nmap
 import requests
 import os
+import webbrowser
 
 def resolve_target(target):
     try:
@@ -131,6 +132,11 @@ def generate_report(target, ip, scan_results, start_time):
         f.write(html)
     
     print(f"\n[+] Report saved as: {os.path.abspath(filename)}")
+    
+    full_path = os.path.abspath(filename)
+    webbrowser.open(f"file://{full_path}")
+    print(f"[+] Opening report in your default browser...")
+    
     return filename
     
 def scan_port(target, port):

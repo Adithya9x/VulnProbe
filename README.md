@@ -34,6 +34,8 @@ No known CVEs found.
 [VULNERABLE] CVE-2021-44224 - HIGH - A crafted URI sent to httpd...
 Scan complete. 2 open port(s) found.
 [+] Report saved as: VulnProbe_Report_scanme_nmap_org.html
+## Report Preview
+![VulnProbe Report](screenshots/VulnProbe-report.png)
 
 ## Tech Stack
 - Python 3.13

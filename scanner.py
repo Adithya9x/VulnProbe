@@ -5,6 +5,7 @@
 import socket
 import datetime
 import nmap
+import requests
 
 def resolve_target(target):
     try:
@@ -37,7 +38,39 @@ def nmap_scan(target, port):
         }
     except:
         return None
+def check_cve(product, version):
+    try:
+        query = f"{product} {version}"
+        url = "https://services.nvd.nist.gov/rest/json/cves/2.0"
+        params = {
+            "keywordSearch": query,
+            "resultsPerPage": 5
+        }
+        response = requests.get(url, params=params, timeout=10)
+        data = response.json()
 
+        cve_list = []
+        if "vulnerabilities" in data:
+            for item in data["vulnerabilities"]:
+                cve_id = item["cve"]["id"]
+                description = item["cve"]["descriptions"][0]["value"]
+                
+                severity = "UNKNOWN"
+                if "metrics" in item["cve"]:
+                    if "cvssMetricV31" in item["cve"]["metrics"]:
+                        severity = item["cve"]["metrics"]["cvssMetricV31"][0]["cvssData"]["baseSeverity"]
+                    elif "cvssMetricV2" in item["cve"]["metrics"]:
+                        severity = item["cve"]["metrics"]["cvssMetricV2"][0]["baseSeverity"]
+                
+                cve_list.append({
+                    "id": cve_id,
+                    "description": description[:100],
+                    "severity": severity
+                })
+        return cve_list
+    except Exception as e:
+        return []
+    
 def scan_port(target, port):
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -72,6 +105,15 @@ def run_scanner(target, start_port, end_port):
                 product = nmap_info['product']
                 version = nmap_info['version']
                 print(f"  [OPEN] Port {port:5} --> {service:15} | {product} {version}")
+                
+                if product and version:
+                    print(f"         Checking CVE database...")
+                    cves = check_cve(product, version)
+                    if cves:
+                        for cve in cves:
+                            print(f"         [VULNERABLE] {cve['id']} - {cve['severity']} - {cve['description']}...")
+                    else:
+                        print(f"         No known CVEs found.")
             else:
                 print(f"  [OPEN] Port {port:5} --> {service:20}")
             open_ports.append((port, service))
